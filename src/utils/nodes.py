@@ -38,12 +38,15 @@ def create_analysts(state: GenerateAnalystsState):
     return {"analysts": analysts.analysts}
 
 def human_feedback(state: GenerateAnalystsState):
+    # Human feedback 
     feedback = interrupt({
         "question": "Are these analysts okay?",
-        "analysts": [
-            analyst.model_dump() if hasattr(analyst, "model_dump") else analyst
-            for analyst in state.get("analysts", [])
-        ],
+        # "analysts": [
+        #     analyst.model_dump() if hasattr(analyst, "model_dump") else analyst
+        #     for analyst in state.get("analysts", [])
+        # ],
+
+        "analysts": state.get("analysts", []),# should work, if not revert to model_dump()
         "instructions": "Return feedback to regenerate analysts, or return empty/perfect/continue to approve."
     })
 
@@ -62,11 +65,6 @@ def human_feedback(state: GenerateAnalystsState):
         return {"human_analyst_feedback": feedback}
 
     return {"human_analyst_feedback": None}
-
-def human_feedback_update(state: GenerateAnalystsState):
-    """this will update the human feedback state"""
-    human_feedback = GenerateAnalystsState["human_analyst_feedback"]
-    return {"human_analyst_feedback" : human_feedback}
 
 def dummy(state: GenerateAnalystsState):
     """ No-op node that should be interrupted on """

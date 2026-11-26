@@ -15,8 +15,6 @@ def should_continue(state: GenerateAnalystsState) -> Literal["create_analysts", 
     human_analyst_feedback=state.get('human_analyst_feedback', None)
 
     if human_analyst_feedback:
-        if human_analyst_feedback == "perfect":
-            return "dummy"
         return "create_analysts"
     
     # Otherwise end
