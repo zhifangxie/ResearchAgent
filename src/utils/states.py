@@ -9,7 +9,7 @@ from pydantic import BaseModel, Field
 class GenerateAnalystsState(TypedDict):
     topic: str # Research topic
     max_analysts: int # Number of analysts
-    human_analyst_feedback: NotRequired[Optional[str]] # Human feedback
+    human_analyst_feedback: NotRequired[Optional[str]] # Human feedback, can be missing (NotRequired) or None (Optional)
     analysts: NotRequired[List[Analyst]] # Analyst asking questions
 
 class InterviewState(MessagesState):

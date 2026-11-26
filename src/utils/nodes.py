@@ -34,6 +34,7 @@ def create_analysts(state: GenerateAnalystsState):
     analysts = structured_llm.invoke([SystemMessage(content=system_message)]+[HumanMessage(content="Generate the set of analysts.")])
     
     # Write the list of analysis to state
+    # A node only needs to return the keys that need updates
     return {"analysts": analysts.analysts}
 
 def human_feedback(state: GenerateAnalystsState):

@@ -16,12 +16,17 @@ class Analyst(BaseModel):
         description="Description of the analyst focus, concerns, and motives."
     )
     # @computed_field: when used model_dump will show the computed field
-    @property (# inbuilt decorator in Python)
+    @property
     def persona(self) -> str:
         return f"Name: {self.name}\nRole: {self.role}\nAffiliation: {self.affiliation}\nDescription: {self.description}\n"
 
 class Perspectives(BaseModel):
     analysts: List[Analyst] = Field(description="Comprehensive list of analysts with their roles and affiliations.")
+
+
+
+
+
 
 # # model_dump: convert model instance to dictionary representation
 # # model_validate: validate and create model instance from dictionary representation
