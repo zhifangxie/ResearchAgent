@@ -29,7 +29,7 @@ class ResearchGraphState(TypedDict):
     max_analysts: int # Number of analysts
     human_analyst_feedback: NotRequired[Optional[str]] # Human feedback
     analysts: List[Analyst] # Analyst asking questions
-    # one section per each analyst
+    # one section per each analyst; different sections are merged here (reduce)
     sections: Annotated[list, operator.add] # Send() API key
     introduction: str # Introduction for the final report
     content: str # Content for the final report
