@@ -23,6 +23,14 @@ class Analyst(BaseModel):
 class Perspectives(BaseModel):
     analysts: List[Analyst] = Field(description="Comprehensive list of analysts with their roles and affiliations.")
 
+class SearchQuery(BaseModel):
+    search_query: str = Field(None, description="Search query for retrieval.")
+
+class Question(BaseModel):
+    # Structured output for generate_question: the end signal is an explicit flag, not a phrase to match
+    question: str = Field(description="Your message to the expert, staying in character.")
+    end_interview: bool = Field(description="True if you are satisfied with your understanding and this message wraps up the interview; otherwise False.")
+
 
 
 

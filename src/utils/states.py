@@ -4,7 +4,6 @@ from src.utils.objects import Analyst
 from langgraph.graph import MessagesState
 from typing_extensions import Annotated
 import operator
-from pydantic import BaseModel, Field
 
 class GenerateAnalystsState(TypedDict):
     topic: str # Research topic
@@ -23,14 +22,6 @@ class InterviewState(MessagesState):
     interview: str # Interview transcript
     sections: list # Final key we duplicate in outer state for Send() API; for downstream section writing
     end_interview: NotRequired[bool] # Set by generate_question when the analyst is done
-
-class SearchQuery(BaseModel):
-    search_query: str = Field(None, description="Search query for retrieval.")
-
-class Question(BaseModel):
-    # Structured output for generate_question: the end signal is an explicit flag, not a phrase to match
-    question: str = Field(description="Your message to the expert, staying in character.")
-    end_interview: bool = Field(description="True if you are satisfied with your understanding and this message wraps up the interview; otherwise False.")
 
 class ResearchGraphState(TypedDict):
     topic: str # Research topic

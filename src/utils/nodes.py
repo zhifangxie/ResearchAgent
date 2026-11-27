@@ -1,5 +1,5 @@
-from src.utils.states import GenerateAnalystsState, InterviewState, ResearchGraphState, SearchQuery, Question
-from src.utils.objects import Perspectives, Analyst
+from src.utils.states import GenerateAnalystsState, InterviewState, ResearchGraphState
+from src.utils.objects import Perspectives, Analyst, SearchQuery, Question
 from src.utils.models import llm
 from langchain.messages import SystemMessage, HumanMessage, AIMessage
 from src.utils.prompts import analyst_instructions, question_instructions, answer_instructions, section_writer_instructions, report_writer_instructions, intro_conclusion_instructions, search_instructions
