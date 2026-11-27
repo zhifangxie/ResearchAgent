@@ -111,7 +111,6 @@ Research topic
     -> conduct_interview for each analyst
         -> ask_question
         -> search_web
-        -> search_web2
         -> answer_question
         -> repeat until max turns
         -> save_interview
@@ -296,7 +295,6 @@ The full graph returns a `final_report` field containing the generated Markdown 
 - Report quality depends on the specificity of the topic and the quality of Tavily search results.
 - Generated reports should be reviewed before being used for business, academic, legal, medical, or financial decisions.
 - The current `main.py` is a minimal placeholder; the primary workflow is exposed through LangGraph.
-- The interview graph currently includes two similar search nodes, `search_web` and `search_web2`, for parallel retrieval.
 
 ---
 

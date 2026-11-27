@@ -119,31 +119,9 @@ def search_web(state: InterviewState):
         ]
     )
 
-    return {"context": [formatted_search_docs]}
-
-def search_web2(state: InterviewState):
-
-    """ Retrieve docs from web search """
-
-    # Search query
-    structured_llm = llm.with_structured_output(SearchQuery)
-    search_query = structured_llm.invoke([SystemMessage(content=search_instructions)]+state['messages'])
-    
-    # Search
-    #search_docs = tavily_search.invoke(search_query.search_query) # updated 1.0
-    data = tavily_search.invoke({"query": search_query.search_query})
-    search_docs = data.get("results", data)
-    
-
-     # Format
-    formatted_search_docs = "\n\n---\n\n".join(
-        [
-            f'<Document href="{doc["url"]}"/>\n{doc["content"]}\n</Document>'
-            for doc in search_docs
-        ]
-    )
-
-    return {"context": [formatted_search_docs]}
+    # context_current is replaced each turn; context_history accumulates via operator.add
+    return {"context_current": [formatted_search_docs],
+            "context_history": [formatted_search_docs]}
 
 def generate_answer(state: InterviewState):
     
@@ -152,7 +130,7 @@ def generate_answer(state: InterviewState):
     # Get state
     analyst = state["analyst"]
     messages = state["messages"]
-    context = state["context"]
+    context = state["context_current"]
 
     if isinstance(analyst, dict):
             analyst = Analyst.model_validate(analyst)
@@ -184,7 +162,7 @@ def write_section(state: InterviewState):
     """ Node to write a report section from the interview sources """
     # Get state
     interview = state["interview"]
-    context = state["context"]
+    context = state.get("context_history", [])
     analyst = state["analyst"]
 
     if isinstance(analyst, dict):
