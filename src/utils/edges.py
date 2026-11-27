@@ -24,7 +24,7 @@ def route_question(state: InterviewState):
     """ After a question: search and answer, or end if the analyst is wrapping up
     (generate_question also sets end_interview once max_num_turns answers are reached) """
     if state.get("end_interview"):
-        return "save_interview"
+        return "write_section"
     return "search_and_answer"
 
 def initiate_all_interviews(state: ResearchGraphState):

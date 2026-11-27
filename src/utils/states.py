@@ -19,7 +19,6 @@ class InterviewState(MessagesState):
     max_num_turns: int # Number turns of conversation
     context_history: Annotated[list, operator.add] # All source docs retrieved across the interview; used for section writing
     analyst: Analyst # Analyst asking questions
-    interview: str # Interview transcript
     sections: list # Final key we duplicate in outer state for Send() API; for downstream section writing
     end_interview: NotRequired[bool] # Set by generate_question when the analyst is done
 

@@ -4,7 +4,6 @@ from src.utils.models import llm
 from langchain.messages import SystemMessage, HumanMessage, AIMessage
 from src.utils.prompts import analyst_instructions, question_instructions, answer_instructions, section_writer_instructions, report_writer_instructions, intro_conclusion_instructions, search_instructions
 from dotenv import load_dotenv
-from langchain_core.messages import get_buffer_string
 from langchain_tavily import TavilySearch
 from langgraph.types import interrupt
 
@@ -133,29 +132,16 @@ def search_and_answer(state: InterviewState):
     # context_history accumulates via operator.add; used later for section writing
     return {"messages": [answer], "context_history": [context]}
 
-def save_interview(state: InterviewState):
-    """ Save interviews """
-
-    # Get messages
-    messages = state["messages"]
-    
-    # Convert interview to a string
-    interview = get_buffer_string(messages)
-    
-    # Save to interviews key
-    return {"interview": interview}
-
 def write_section(state: InterviewState):
     """ Node to write a report section from the interview sources """
     # Get state
-    interview = state["interview"]
     context = state.get("context_history", [])
     analyst = state["analyst"]
 
     if isinstance(analyst, dict):
             analyst = Analyst.model_validate(analyst)
     
-    # Write section using either the gathered source docs from interview (context) or the interview itself (interview)
+    # Write section from the source docs gathered during the interview
     system_message = section_writer_instructions.format(focus=analyst.description)
     section = llm.invoke([SystemMessage(content=system_message)]+[HumanMessage(content=f"Use this source to write your section: {context}")]) 
                 

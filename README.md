@@ -63,7 +63,7 @@ The full graph creates analyst personas, pauses for human feedback, runs intervi
 - Each analyst starts with a topic-aware opening question.
 - The expert answer is grounded in retrieved context.
 - The interview loop continues until the maximum number of expert turns is reached or the analyst closes the interview.
-- Finished interviews are saved as transcripts and converted into short report sections.
+- Finished interviews are converted into short report sections from the gathered sources.
 
 ### Web Research
 
@@ -112,7 +112,6 @@ Research topic
         -> ask_question
         -> search_and_answer (web search + answer)
         -> repeat until max turns
-        -> save_interview
         -> write_section
     -> write_report
     -> write_introduction
