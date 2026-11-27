@@ -76,6 +76,7 @@ def generate_question(state: InterviewState):
     # Get state
     analyst = state["analyst"]
     if isinstance(analyst, dict):
+        # Good habit if the state is a model instance, in case it is received as JSON or from user
         analyst = Analyst.model_validate(analyst)
     messages = state["messages"]
 

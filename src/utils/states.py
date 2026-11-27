@@ -12,12 +12,17 @@ class GenerateAnalystsState(TypedDict):
     human_analyst_feedback: NotRequired[Optional[str]] # Human feedback, can be missing (NotRequired) or None (Optional)
     analysts: NotRequired[List[Analyst]] # Analyst asking questions
 
+
+# add_messages is for conversation history.
+# operator.add is for accumulating other data, such as your context and sections.
+
 class InterviewState(MessagesState):
+    # MessagesState brings in: messages: Annotated[list[AnyMessage], add_messages]
     max_num_turns: int # Number turns of conversation
     context: Annotated[list, operator.add] # Source docs
     analyst: Analyst # Analyst asking questions
     interview: str # Interview transcript
-    sections: list # Final key we duplicate in outer state for Send() API
+    sections: list # Final key we duplicate in outer state for Send() API; for downstream section writing
 
 class SearchQuery(BaseModel):
     search_query: str = Field(None, description="Search query for retrieval.")
