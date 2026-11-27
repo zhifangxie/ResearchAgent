@@ -23,10 +23,17 @@ class InterviewState(MessagesState):
     end_interview: NotRequired[bool] # Set by generate_question when the analyst is done
 
 
+# What the interview sub-graph returns to the main graph. Without this, every parallel interview
+# would also write back shared keys such as max_num_turns and raise InvalidUpdateError
+class InterviewOutputState(TypedDict):
+    sections: list
+
+
 # main graph has all state components from GenerateAnalytsState
 class ResearchGraphState(TypedDict):
     topic: str # Research topic
     max_analysts: int # Number of analysts
+    max_num_turns: int # Number of turns per interview
     human_analyst_feedback: NotRequired[Optional[str]] # Human feedback
     analysts: List[Analyst] # Analyst asking questions
     # one section per each analyst; different sections are merged here (reduce)

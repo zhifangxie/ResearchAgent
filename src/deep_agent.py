@@ -22,6 +22,7 @@ builder.add_conditional_edges("human_feedback", initiate_all_interviews, ["creat
 builder.add_edge("conduct_interview", "write_report")
 builder.add_edge("conduct_interview", "write_introduction")
 builder.add_edge("conduct_interview", "write_conclusion")
+# finalize report node after all three upstream nodes are done
 builder.add_edge(["write_conclusion", "write_report", "write_introduction"], "finalize_report")
 builder.add_edge("finalize_report", END)
 
