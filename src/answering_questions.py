@@ -14,7 +14,7 @@ interview_builder.add_node("write_section", write_section)
 
 # Flow
 interview_builder.add_edge(START, "ask_question")
-interview_builder.add_conditional_edges("ask_question", route_question, ["search_web", "search_web2", "save_interview"])
+interview_builder.add_conditional_edges("ask_question", route_question)
 interview_builder.add_edge("search_web", "answer_question")
 interview_builder.add_edge("search_web2", "answer_question")
 interview_builder.add_edge("answer_question", "ask_question")
