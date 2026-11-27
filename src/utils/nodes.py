@@ -87,6 +87,79 @@ def generate_question(state: InterviewState):
     # Write messages to state
     return {"messages": [question]}
 
+tavily_search = TavilySearch(max_results=3)
+
+
+# node
+def search_web(state: InterviewState):
+    """ Retrieve docs from web search """
+
+    # Search query
+    structured_llm = llm.with_structured_output(SearchQuery)
+    search_query = structured_llm.invoke([SystemMessage(content=search_instructions)]+state['messages'])
+    
+    # Search
+    data = tavily_search.invoke({"query": search_query.search_query})
+    search_docs = data.get("results", data)
+    
+
+     # Format
+    formatted_search_docs = "\n\n---\n\n".join(
+        [
+            f'<Document href="{doc["url"]}"/>\n{doc["content"]}\n</Document>'
+            for doc in search_docs
+        ]
+    )
+
+    return {"context": [formatted_search_docs]}
+
+def search_web2(state: InterviewState):
+
+    """ Retrieve docs from web search """
+
+    # Search query
+    structured_llm = llm.with_structured_output(SearchQuery)
+    search_query = structured_llm.invoke([SystemMessage(content=search_instructions)]+state['messages'])
+    
+    # Search
+    #search_docs = tavily_search.invoke(search_query.search_query) # updated 1.0
+    data = tavily_search.invoke({"query": search_query.search_query})
+    search_docs = data.get("results", data)
+    
+
+     # Format
+    formatted_search_docs = "\n\n---\n\n".join(
+        [
+            f'<Document href="{doc["url"]}"/>\n{doc["content"]}\n</Document>'
+            for doc in search_docs
+        ]
+    )
+
+    return {"context": [formatted_search_docs]}
+
+def generate_answer(state: InterviewState):
+    
+    """ Node to answer a question """
+
+    # Get state
+    analyst = state["analyst"]
+    messages = state["messages"]
+    context = state["context"]
+
+    if isinstance(analyst, dict):
+            analyst = Analyst.model_validate(analyst)
+
+    # Answer question
+    system_message = answer_instructions.format(goals=analyst.persona, context=context)
+    answer = llm.invoke([SystemMessage(content=system_message)]+messages)
+            
+    # Naming the AI message allows differentiation of multiple AI roles in the conversation.
+    answer.name = "expert"
+    
+    # Append it to state
+    return {"messages": [answer]}
+
+
 def save_interview(state: InterviewState):
     """ Save interviews """
 
@@ -116,91 +189,6 @@ def write_section(state: InterviewState):
     # Append it to state
     return {"sections": [section.content]}
 
-def generate_answer(state: InterviewState):
-    
-    """ Node to answer a question """
-
-    # Get state
-    analyst = state["analyst"]
-    messages = state["messages"]
-    context = state["context"]
-
-    if isinstance(analyst, dict):
-            analyst = Analyst.model_validate(analyst)
-
-    # Answer question
-    system_message = answer_instructions.format(goals=analyst.persona, context=context)
-    answer = llm.invoke([SystemMessage(content=system_message)]+messages)
-            
-    # Name the message as coming from the expert
-    answer.name = "expert"
-    
-    # Append it to state
-    return {"messages": [answer]}
-
-def save_interview(state: InterviewState):
-    """ Save interviews """
-
-    # Get messages
-    messages = state["messages"]
-    
-    # Convert interview to a string
-    interview = get_buffer_string(messages)
-    
-    # Save to interviews key
-    return {"interview": interview}
-
-tavily_search = TavilySearch(max_results=3)
-
-search_instructions_system_message = SystemMessage(content=search_instructions)
-
-# node
-def search_web(state: InterviewState):
-    """ Retrieve docs from web search """
-
-    # Search query
-    structured_llm = llm.with_structured_output(SearchQuery)
-    search_query = structured_llm.invoke([search_instructions]+state['messages'])
-    
-    # Search
-    #search_docs = tavily_search.invoke(search_query.search_query) # updated 1.0
-    data = tavily_search.invoke({"query": search_query.search_query})
-    search_docs = data.get("results", data)
-    
-
-     # Format
-    formatted_search_docs = "\n\n---\n\n".join(
-        [
-            f'<Document href="{doc["url"]}"/>\n{doc["content"]}\n</Document>'
-            for doc in search_docs
-        ]
-    )
-
-    return {"context": [formatted_search_docs]}
-
-def search_web2(state: InterviewState):
-
-    """ Retrieve docs from web search """
-
-    # Search query
-    structured_llm = llm.with_structured_output(SearchQuery)
-    search_query = structured_llm.invoke([search_instructions]+state['messages'])
-    
-    # Search
-    #search_docs = tavily_search.invoke(search_query.search_query) # updated 1.0
-    data = tavily_search.invoke({"query": search_query.search_query})
-    search_docs = data.get("results", data)
-    
-
-     # Format
-    formatted_search_docs = "\n\n---\n\n".join(
-        [
-            f'<Document href="{doc["url"]}"/>\n{doc["content"]}\n</Document>'
-            for doc in search_docs
-        ]
-    )
-
-    return {"context": [formatted_search_docs]}
 
 def write_report(state: ResearchGraphState):
     # Full set of sections

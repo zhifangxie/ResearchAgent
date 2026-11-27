@@ -15,7 +15,6 @@ class GenerateAnalystsState(TypedDict):
 
 # add_messages is for conversation history.
 # operator.add is for accumulating other data, such as your context and sections.
-
 class InterviewState(MessagesState):
     # MessagesState brings in: messages: Annotated[list[AnyMessage], add_messages]
     max_num_turns: int # Number turns of conversation
