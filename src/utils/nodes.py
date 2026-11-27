@@ -1,13 +1,11 @@
-from src.utils.states import GenerateAnalystsState, InterviewState, ResearchGraphState
+from src.utils.states import GenerateAnalystsState, InterviewState, ResearchGraphState, SearchQuery, Question
 from src.utils.objects import Perspectives, Analyst
 from src.utils.models import llm
-from langchain.messages import SystemMessage, HumanMessage
-from src.utils.prompts import analyst_instructions, question_instructions, answer_instructions, section_writer_instructions, report_writer_instructions, intro_conclusion_instructions
+from langchain.messages import SystemMessage, HumanMessage, AIMessage
+from src.utils.prompts import analyst_instructions, question_instructions, answer_instructions, section_writer_instructions, report_writer_instructions, intro_conclusion_instructions, search_instructions
 from dotenv import load_dotenv
 from langchain_core.messages import get_buffer_string
 from langchain_tavily import TavilySearch
-from src.utils.prompts import search_instructions
-from src.utils.states import InterviewState, SearchQuery
 from langgraph.types import interrupt
 
 
@@ -79,13 +77,23 @@ def generate_question(state: InterviewState):
         # Good habit if the state is a model instance, in case it is received as JSON or from user
         analyst = Analyst.model_validate(analyst)
     messages = state["messages"]
+    max_num_turns = state.get("max_num_turns", 2)
 
-    # Generate question 
+    # Count the expert's answers; once the limit is reached, close with a fixed message (no LLM call)
+    num_responses = len([m for m in messages if isinstance(m, AIMessage) and m.name == "expert"])
+    if num_responses >= max_num_turns:
+        return {"messages": [AIMessage(content="Thank you so much for your help!")],
+                "end_interview": True}
+
+    # Generate question, with an explicit flag saying whether the analyst is wrapping up
     system_message = question_instructions.format(goals=analyst.persona)
-    question = llm.invoke([SystemMessage(content=system_message)]+messages)
-        
-    # Write messages to state
-    return {"messages": [question]}
+    structured_llm = llm.with_structured_output(Question)
+    result = structured_llm.invoke([SystemMessage(content=system_message)]+messages)
+
+    # Structured output returns a Pydantic object, so wrap the text back into a message
+    # Write messages and the end flag to state
+    return {"messages": [AIMessage(content=result.question)],
+            "end_interview": result.end_interview}
 
 tavily_search = TavilySearch(max_results=3)
 
@@ -173,7 +181,7 @@ def save_interview(state: InterviewState):
     return {"interview": interview}
 
 def write_section(state: InterviewState):
-    """ Node to answer a question """
+    """ Node to write a report section from the interview sources """
     # Get state
     interview = state["interview"]
     context = state["context"]

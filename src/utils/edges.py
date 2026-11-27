@@ -2,7 +2,7 @@ from src.utils.states import GenerateAnalystsState, InterviewState, ResearchGrap
 from langgraph.graph import END
 from dotenv import load_dotenv
 from typing import Literal
-from langchain.messages import AIMessage, HumanMessage
+from langchain.messages import HumanMessage
 from langgraph.types import Send
 
 load_dotenv()
@@ -20,28 +20,13 @@ def should_continue(state: GenerateAnalystsState) -> Literal["create_analysts", 
     # Otherwise end
     return "dummy"
 
-def route_messages(state: InterviewState, name: str = "expert"):
-
-    """ Route between question and answer """
-    
-    # Get messages
-    messages = state["messages"]
-    max_num_turns = state.get('max_num_turns',2)
-
-    # Check the number of expert answers 
-    num_responses = len([m for m in messages if isinstance(m, AIMessage) and m.name == name])
-
-    # End if expert has answered more than the max turns
-    if num_responses >= max_num_turns:
-        return 'save_interview'
-
-    # This router is run after each question - answer pair 
-    # Get the last question asked to check if it signals the end of discussion
-    last_question = messages[-2]
-    
-    if "Thank you so much for your help" in last_question.content:
-        return 'save_interview'
-    return "ask_question"
+def route_question(state: InterviewState):
+    """ After a question: search and answer, or end if the analyst is wrapping up
+    (generate_question also sets end_interview once max_num_turns answers are reached) """
+    if state.get("end_interview"):
+        return "save_interview"
+    # Returning a list runs both search nodes in parallel
+    return ["search_web", "search_web2"]
 
 def initiate_all_interviews(state: ResearchGraphState):
     """ This is the "map" step where we run each interview sub-graph using Send API """    
