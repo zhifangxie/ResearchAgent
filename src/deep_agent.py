@@ -8,6 +8,7 @@ from src.utils.edges import initiate_all_interviews
 builder = StateGraph(ResearchGraphState)
 builder.add_node("create_analysts", create_analysts)
 builder.add_node("human_feedback", human_feedback)
+# subgraph 
 builder.add_node("conduct_interview", interview_builder.compile())
 builder.add_node("write_report",write_report)
 builder.add_node("write_introduction",write_introduction)

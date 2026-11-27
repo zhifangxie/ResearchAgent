@@ -39,8 +39,12 @@ def initiate_all_interviews(state: ResearchGraphState):
     # Otherwise kick off interviews in parallel via Send() API
     else:
         topic = state["topic"]
+        # conduct_interview: next node
+        # {}: input received by the next node
+        # map-reduce: run the same node multiple times in parallel, send input to each 
+        # results are merged back together
         return [Send("conduct_interview", {"analyst": analyst,
                                            "messages": [HumanMessage(
-                                               content=f"So you said you were writing an article on {topic}?"
+                                               content=f"Write an article on {topic}"
                                            )
                                                        ]}) for analyst in state["analysts"]]

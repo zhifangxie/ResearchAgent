@@ -145,7 +145,7 @@ def write_section(state: InterviewState):
     system_message = section_writer_instructions.format(focus=analyst.description)
     section = llm.invoke([SystemMessage(content=system_message)]+[HumanMessage(content=f"Use this source to write your section: {context}")]) 
                 
-    # Append it to state
+    # Append it to state in list - as parallel interviews get combined into the parent graph.
     return {"sections": [section.content]}
 
 

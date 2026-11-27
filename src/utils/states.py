@@ -22,11 +22,14 @@ class InterviewState(MessagesState):
     sections: list # Final key we duplicate in outer state for Send() API; for downstream section writing
     end_interview: NotRequired[bool] # Set by generate_question when the analyst is done
 
+
+# main graph has all state components from GenerateAnalytsState
 class ResearchGraphState(TypedDict):
     topic: str # Research topic
     max_analysts: int # Number of analysts
     human_analyst_feedback: NotRequired[Optional[str]] # Human feedback
     analysts: List[Analyst] # Analyst asking questions
+    # one section per each analyst
     sections: Annotated[list, operator.add] # Send() API key
     introduction: str # Introduction for the final report
     content: str # Content for the final report
