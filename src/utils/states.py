@@ -18,7 +18,6 @@ class InterviewState(MessagesState):
     # MessagesState brings in: messages: Annotated[list[AnyMessage], add_messages]
     max_num_turns: int # Number turns of conversation
     context_history: Annotated[list, operator.add] # All source docs retrieved across the interview; used for section writing
-    context_current: list # Source docs from the latest search only (overwritten each turn); used for answering
     analyst: Analyst # Analyst asking questions
     interview: str # Interview transcript
     sections: list # Final key we duplicate in outer state for Send() API; for downstream section writing

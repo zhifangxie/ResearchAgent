@@ -25,7 +25,7 @@ def route_question(state: InterviewState):
     (generate_question also sets end_interview once max_num_turns answers are reached) """
     if state.get("end_interview"):
         return "save_interview"
-    return "search_web"
+    return "search_and_answer"
 
 def initiate_all_interviews(state: ResearchGraphState):
     """ This is the "map" step where we run each interview sub-graph using Send API """    

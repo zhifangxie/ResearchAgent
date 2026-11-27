@@ -110,8 +110,7 @@ Research topic
         -> continue when approved
     -> conduct_interview for each analyst
         -> ask_question
-        -> search_web
-        -> answer_question
+        -> search_and_answer (web search + answer)
         -> repeat until max turns
         -> save_interview
         -> write_section

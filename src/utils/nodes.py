@@ -99,52 +99,39 @@ tavily_search = TavilySearch(max_results=3)
 
 
 # node
-def search_web(state: InterviewState):
-    """ Retrieve docs from web search """
-
-    # Search query
-    structured_llm = llm.with_structured_output(SearchQuery)
-    search_query = structured_llm.invoke([SystemMessage(content=search_instructions)]+state['messages'])
-    
-    # Search
-    data = tavily_search.invoke({"query": search_query.search_query})
-    search_docs = data.get("results", data)
-    
-
-     # Format
-    formatted_search_docs = "\n\n---\n\n".join(
-        [
-            f'<Document href="{doc["url"]}"/>\n{doc["content"]}\n</Document>'
-            for doc in search_docs
-        ]
-    )
-
-    # context_current is replaced each turn; context_history accumulates via operator.add
-    return {"context_current": [formatted_search_docs],
-            "context_history": [formatted_search_docs]}
-
-def generate_answer(state: InterviewState):
-    
-    """ Node to answer a question """
+def search_and_answer(state: InterviewState):
+    """ Search the web for the analyst's latest question, then answer it as the expert """
 
     # Get state
     analyst = state["analyst"]
     messages = state["messages"]
-    context = state["context_current"]
 
     if isinstance(analyst, dict):
-            analyst = Analyst.model_validate(analyst)
+        analyst = Analyst.model_validate(analyst)
+
+    # Search query
+    structured_llm = llm.with_structured_output(SearchQuery)
+    search_query = structured_llm.invoke([SystemMessage(content=search_instructions)] + messages)
+
+    # Search
+    data = tavily_search.invoke({"query": search_query.search_query})
+    search_docs = data.get("results", data)
+
+    # Format
+    context = "\n\n---\n\n".join(
+        f'<Document href="{doc["url"]}"/>\n{doc["content"]}\n</Document>'
+        for doc in search_docs
+    )
 
     # Answer question
     system_message = answer_instructions.format(goals=analyst.persona, context=context)
-    answer = llm.invoke([SystemMessage(content=system_message)]+messages)
-            
+    answer = llm.invoke([SystemMessage(content=system_message)] + messages)
+
     # Naming the AI message allows differentiation of multiple AI roles in the conversation.
     answer.name = "expert"
-    
-    # Append it to state
-    return {"messages": [answer]}
 
+    # context_history accumulates via operator.add; used later for section writing
+    return {"messages": [answer], "context_history": [context]}
 
 def save_interview(state: InterviewState):
     """ Save interviews """
